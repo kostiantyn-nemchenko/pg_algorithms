@@ -1,0 +1,5 @@
+# pg_algorithms extension
+comment = 'popular algorithms implementation on PostgreSQL side'
+default_version = '1.0'
+module_pathname = '$libdir/pg_algorithms'
+relocatable = true
