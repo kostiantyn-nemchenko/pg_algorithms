@@ -28,3 +28,21 @@ After that, execute this statement in psql:
 ```
 CREATE EXTENSION pg_algorithms;
 ```
+
+## Usage examples
+```
+postgres=# select bubble_sort('{9876, 0, -1, 23786, 124, 7, -17000, 93, 5, 60, 313}'::int[]);
+                bubble_sort
+--------------------------------------------
+ {-17000,-1,0,5,7,60,93,124,313,9876,23786}
+(1 row)
+```
+
+```
+postgres=# select quick_sort('{9876, 0, -1, 23786, 124, 7, -17000, 93, 5, 60, 313}'::int[]);
+                 quick_sort
+--------------------------------------------
+ {-17000,-1,0,5,7,60,93,124,313,9876,23786}
+(1 row)
+
+```
