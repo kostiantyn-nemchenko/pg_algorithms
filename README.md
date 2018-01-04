@@ -2,6 +2,7 @@
 
 `pg_algorithms` is PostgreSQL extension that provides an implementation of the most well-known algorithms. This is a pet project and its main purpose is to learn PostgreSQL hacking, so **do not use** it **in the production environment**.
 
+
 ## Supported algorithms
   * ### Sorting
     - Bubble sort
@@ -10,10 +11,11 @@
     - <del>Heap Sort</del>
     - <del>Insertion Sort</del>
     - <del>Merge Sort</del>
-    - <del>QuickSort</del>
+    - QuickSort
     - <del>Radix Sort</del>
     - <del>Selection Sort</del>
     - <del>ShellSort</del>
+
 
 ## Installation and configuration
 To install `pg_algorithms`, take the following steps:
@@ -26,4 +28,3 @@ After that, execute this statement in psql:
 ```
 CREATE EXTENSION pg_algorithms;
 ```
-

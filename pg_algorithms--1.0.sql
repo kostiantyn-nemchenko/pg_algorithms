@@ -9,3 +9,8 @@ RETURNS int[]
 AS 'MODULE_PATHNAME'
 LANGUAGE C STRICT STABLE;
 
+-- Sort input array using quicksort sorting algorithm
+CREATE FUNCTION quick_sort(int[])
+RETURNS int[]
+AS 'MODULE_PATHNAME'
+LANGUAGE C STRICT STABLE;

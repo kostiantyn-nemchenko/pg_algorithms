@@ -5,20 +5,17 @@
 #include "utils/lsyscache.h"
 
 
-PG_MODULE_MAGIC;
-
-Datum bubble_sort(PG_FUNCTION_ARGS);
-static void swap(Datum *a, Datum *b);
-static void bubblesort(Datum *array, int size);
+Datum quick_sort(PG_FUNCTION_ARGS);
+static void quicksort(Datum *array, int first_index, int last_index);
 
 
-PG_FUNCTION_INFO_V1(bubble_sort);
+PG_FUNCTION_INFO_V1(quick_sort);
 
 /*
-* Sort array using bubble sorting algorithm
+* Sort array using quick sort algorithm
 */
 Datum
-bubble_sort(PG_FUNCTION_ARGS)
+quick_sort(PG_FUNCTION_ARGS)
 {
     ArrayType  *input_array = PG_GETARG_ARRAYTYPE_P(0);
     ArrayType  *output_array;
@@ -68,7 +65,8 @@ bubble_sort(PG_FUNCTION_ARGS)
                       (bool) 0,
                      &nelems);
 
-    bubblesort(input_elems, nelems);
+    // apply quick sort algorithm
+    quicksort(input_elems, 0, nelems - 1);
 
     output_array = construct_array(input_elems,
                                    nelems,
@@ -76,31 +74,52 @@ bubble_sort(PG_FUNCTION_ARGS)
                                    input_elmlen,
                                    input_elmbyval,
                                    input_elmalign);
+
     // return sorted array
     PG_RETURN_ARRAYTYPE_P(output_array);
 }
 
 static void 
-bubblesort(Datum *array, int size)
+quicksort(Datum *array, int first_index, int last_index)
 {
-    int i, j;
+    // declaring index variables
+    int pivot_index, temp, index1, index2;
 
-    for (i = 0;  i < size - 1; i++)
+    if(first_index < last_index)
     {
-        for (j = 0; j < size - i - 1; j++)
+        // assigning first element index as pivot element
+        pivot_index = first_index;
+        index1 = first_index;
+        index2 = last_index;
+
+        // sorting in ascending
+        while(index1 < index2)
         {
-            if ( DatumGetInt32(array[j]) > DatumGetInt32(array[j+1]) )
-                swap(&array[j], &array[j+1]);
+            while(DatumGetInt32(array[index1]) <= DatumGetInt32(array[pivot_index]) && index1 < last_index)
+            {
+                index1++;
+            }
+            while(DatumGetInt32(array[index2]) > DatumGetInt32(array[pivot_index]))
+            {
+                index2--;
+            }
+
+            if(index1 < index2)
+            {
+                // swapping operation
+                temp = array[index1];
+                array[index1] = array[index2];
+                array[index2] = temp;
+            }
         }
+
+        // at the end of first iteration, swap pivot element with index2 element
+        temp = array[pivot_index];
+        array[pivot_index] = array[index2];
+        array[index2] = temp;
+
+        // recursive call for quick sort, with partitioning
+        quicksort(array, first_index, index2 - 1);
+        quicksort(array, index2 + 1, last_index);
     }
-}
-
-static void
-swap(Datum *a, Datum *b)
-{
-    Datum temp;
-
-    temp = *a;
-    *a = *b;
-    *b = temp;
 }

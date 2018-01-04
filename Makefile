@@ -1,5 +1,5 @@
 MODULE_big = pg_algorithms
-OBJS = bubble_sort.o $(WIN32RES)
+OBJS = bubble_sort.o quick_sort.o $(WIN32RES)
 
 EXTENSION = pg_algorithms
 DATA = pg_algorithms--1.0.sql
