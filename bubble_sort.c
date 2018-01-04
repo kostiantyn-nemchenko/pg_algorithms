@@ -4,11 +4,13 @@
 #include "utils/array.h"
 #include "utils/lsyscache.h"
 
-#ifdef PG_MODULE_MAGIC
+
 PG_MODULE_MAGIC;
-#endif
 
 Datum bubble_sort(PG_FUNCTION_ARGS);
+static void swap(Datum *a, Datum *b);
+static void bubblesort(Datum *array, int size);
+
 
 PG_FUNCTION_INFO_V1(bubble_sort);
 
@@ -20,12 +22,12 @@ bubble_sort(PG_FUNCTION_ARGS)
 {
     ArrayType  *input_array = PG_GETARG_ARRAYTYPE_P(0);
     ArrayType  *output_array;
-    Datum      *input_elems, *output_elems, temp;
-    Oid         input_elmtype, output_elmtype;
-    int16       input_elmlen, output_elmlen;
-    bool        input_elmbyval, output_elmbyval;
-    char        input_elmalign, output_elmalign;
-    int         i, j, nelems;
+    Datum      *input_elems;
+    Oid         input_elmtype;
+    int16       input_elmlen;
+    bool        input_elmbyval;
+    char        input_elmalign;
+    int         nelems;
 
     if (ARR_HASNULL(input_array) && array_contains_nulls(input_array))
 			ereport(ERROR,
@@ -57,13 +59,6 @@ bubble_sort(PG_FUNCTION_ARGS)
             break;
     }
 
-    output_elmtype = INT4OID; //TODO: add float data types support
-
-    get_typlenbyvalalign(output_elmtype,
-                        &output_elmlen,
-                        &output_elmbyval,
-                        &output_elmalign);
-
     // extract the array contents
     deconstruct_array(input_array,
                       input_elmtype,
@@ -74,40 +69,39 @@ bubble_sort(PG_FUNCTION_ARGS)
                       (bool) 0,
                      &nelems);
 
-    // sort input array using bubble sorting algorithm
-    for(i = 0; i < nelems - 1; i++)
-    {
-        for(j = 0; j < nelems - i - 1; j++)
-        {
-            if (DatumGetInt32(input_elems[j]) > DatumGetInt32(input_elems[j+1]))
-            {
-                temp = input_elems[j];
-                input_elems[j] = input_elems[j+1];
-                input_elems[j+1] = temp;
-            }
-        }
-    }
+    bubblesort(input_elems, nelems);
 
-    // construct result array
-    output_elems = (Datum *)palloc(nelems * sizeof(Datum));
-
-    for(i = 0; i < nelems; i++)
-    {
-        switch (output_elmtype)
-        {
-            case INT4OID:
-                output_elems[i] = Int32GetDatum((int32)input_elems[i]);
-                break;
-        }
-
-    }
-
-    output_array = construct_array(output_elems,
+    output_array = construct_array(input_elems,
                                    nelems,
-                                   output_elmtype,
-                                   output_elmlen,
-                                   output_elmbyval,
-                                   output_elmalign);
+                                   input_elmtype,
+                                   input_elmlen,
+                                   input_elmbyval,
+                                   input_elmalign);
     // return sorted array
     PG_RETURN_ARRAYTYPE_P(output_array);
+}
+
+static void 
+bubblesort(Datum *array, int size)
+{
+    int i, j;
+
+    for (i = 0;  i < size - 1; i++)
+    {
+        for (j = 0; j < size - i - 1; j++)
+        {
+            if ( DatumGetInt32(array[j]) > DatumGetInt32(array[j+1]) )
+                swap(&array[j], &array[j+1]);
+        }
+    }
+}
+
+static void
+swap(Datum *a, Datum *b)
+{
+    Datum temp;
+
+    temp = *a;
+    *a = *b;
+    *b = temp;
 }
